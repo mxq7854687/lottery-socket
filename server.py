@@ -39,18 +39,18 @@ def socket_connect():
 def socket_disconnect():
     print('Client disconnected')
 
-@socketio.event
-def disconnect_request():
-    @copy_current_request_context
-    def can_disconnect():
-        disconnect()
-
-    # for this emit we use a callback function
-    # when the callback function is invoked we know that the message has been
-    # received and it is safe to disconnect
-    emit('my_response',
-         {'data': 'Disconnected!'},
-         callback=can_disconnect)
+# @socketio.event
+# def disconnect_request():
+#     @copy_current_request_context
+#     def can_disconnect():
+#         disconnect()
+#
+#     # for this emit we use a callback function
+#     # when the callback function is invoked we know that the message has been
+#     # received and it is safe to disconnect
+#     emit('my_response',
+#          {'data': 'Disconnected!'},
+#          callback=can_disconnect)
 
 
 @socketio.event
@@ -63,12 +63,18 @@ def connect():
 
 
 def countdown():
+    time = t
     while True:
-        socketio.sleep(t)
+        while time > 0:
+            socketio.emit('counter', {'data': time}, broadcast=True)
+            socketio.sleep(1)
+            time -= 1
         msg = gm.notify_winner()
         print(msg)
-        socketio.emit('server_response', {'data': msg}, broadcast=True)
+        socketio.emit('notification', {'data': msg}, broadcast=True)
         gm.restart()
+        time = t
+
 
 #TODO class refactor
 #  thread class override threading

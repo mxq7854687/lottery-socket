@@ -84,7 +84,7 @@ class TestLotterySocketIO(unittest.TestCase):
         pass
 
     def setUp(self):
-        pass
+        self.drawer = Drawer(lower=1,upper=5,num_of_ticket=3)
 
     def tearDown(self):
         pass
@@ -114,6 +114,17 @@ class TestLotterySocketIO(unittest.TestCase):
         data = received[1]['args'][0]['data']
         self.assertEqual(len(data[0]), 3)
         self.assertTrue(isinstance(data[1], int))
+
+
+    def test_one_player_buy_ticket_full(self):
+        client = socketio.test_client(app)
+        maximun = self.drawer.max
+        for i in range(maximun):
+            client.emit('buy_ticket', '')
+        client.emit('buy_ticket','')
+        received = client.get_received()
+        self.assertEqual(received[-1]['args'][0]['data'][0],[-1])
+
 
     def test_connect_query_string_and_headers(self):
         client = socketio.test_client(
