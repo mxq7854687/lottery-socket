@@ -3,10 +3,10 @@ from draw.drawer import Drawer
 
 class Pool:
     def __init__(self, ):
-        self.pool = []
         self.drawer = Drawer(lower=1,upper=5,num_of_ticket=3)
+        self.pool = []
         self.price = self.drawer.draw()
-        self.winner = -1
+        self.winner = "-"
 
     def draw(self,user_id):
         ticket = self.drawer.draw()
@@ -37,6 +37,4 @@ class Pool:
         return self.winner
 
     def reset(self):
-        self.pool = []
-        self.price = self.drawer.draw()
-        self.winner = -1
+        self.__init__()

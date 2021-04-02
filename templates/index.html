@@ -15,7 +15,7 @@
     var socket = io();
     function buyTicket(){
       if( connected){
-         socket.emit("buy_ticket", "");
+         socket.emit("buy_ticket", socket.id);
       }
     }
     socket.on('connect', function() {
@@ -40,7 +40,7 @@
     });
     socket.on('notification', function(msg) {
       let message;
-      if(msg.data[1] == -1){
+      if(msg.data[1] === "-"){
         message = "<br>Received# ticket: [" + msg.data[0] + "] | No winner";
       }else{
         message = "<br>Received# ticket: [" + msg.data[0] + "] | Winner is : " + msg.data[1] + " congratulations!";
@@ -53,7 +53,6 @@
 
     socket.on('counter' , function(msg){
       document.getElementById("counter").innerHTML = msg.data + " seconds";
-
     })
 
 
