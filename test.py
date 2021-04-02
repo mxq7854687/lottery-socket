@@ -1,28 +1,12 @@
 import unittest
-from multiprocessing import Process
 from threading import Thread
-from unittest import mock
-
-import coverage
 
 from draw.drawer import Drawer
 from draw.pool import Pool
 from server import app, socketio
 
-cov = coverage.coverage(branch=True)
-cov.start()
-
 
 class TestDraw(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        pass
-
-    @classmethod
-    def tearDownClass(cls):
-        # cov.stop()
-        # cov.report(include='flask_socketio/*', show_missing=True)
-        pass
 
     def setUp(self):
         self.drawer = Drawer(lower=1, upper=5, num_of_ticket=3)
@@ -47,6 +31,12 @@ class TestPool(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+    def test_add_to_pool(self):
+        self.assertEqual(len(self.pool.pool), 0)
+        ticket = self.drawer.draw()
+        self.pool.add_to_poll(ticket)
+        self.assertEqual(len(self.pool.pool), 1)
 
     def test_pool_full(self):
         maximum = self.drawer.max
@@ -73,17 +63,13 @@ class TestPool(unittest.TestCase):
             ticket = self.pool.draw(user_id=i + 1)
         self.assertTrue(self.pool.winner != "-")
 
+    def test_is_ticket_in_poll(self):
+        ticket = self.drawer.draw()
+        self.pool.add_to_poll(ticket)
+        self.assertTrue(self.pool.is_ticket_in_poll(ticket))
+
 
 class TestLotterySocketIO(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        pass
-
-    @classmethod
-    def tearDownClass(cls):
-        # cov.stop()
-        # cov.report(include='flask_socketio/*', show_missing=True)
-        pass
 
     def setUp(self):
         self.drawer = Drawer(lower=1, upper=5, num_of_ticket=3)

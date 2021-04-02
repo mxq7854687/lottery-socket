@@ -1,11 +1,12 @@
 from threading import Lock
-from flask import Flask, render_template, copy_current_request_context
-from flask_socketio import SocketIO, emit, disconnect
+
+from flask import Flask, render_template
+from flask_socketio import SocketIO, emit
+
 from draw.gamemaster import GameMaster
 
 async_mode = None
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
 thread_lock = Lock()
 
@@ -14,47 +15,38 @@ gm = GameMaster()
 
 t = 10
 
+
 @app.route('/')
-def index():
+def index() -> None:
     return render_template('index.html')
 
+
 @socketio.on('message')
-def messaging(message):
-    print(message)
+def messaging(message: str) -> None:
     emit('server_response', {'data': message})
 
+
 @socketio.on('buy_ticket')
-def buy(message):
-    buy_ticket_response = gm.buy_ticket()
-    print(buy_ticket_response)
+def buy(client_id: str) -> None:
+    buy_ticket_response = gm.buy_ticket(client_id)
     emit('server_response', {'data': buy_ticket_response})
 
 
-
 @socketio.on('connect')
-def socket_connect():
+def socket_connect() -> None:
     emit('server_response', {'data': 'Connected', 'count': 0})
 
-@socketio.on('disconnect')
-def socket_disconnect():
-    print('Client disconnected')
 
-# @socketio.event
-# def disconnect_request():
-#     @copy_current_request_context
-#     def can_disconnect():
-#         disconnect()
-#
-#     # for this emit we use a callback function
-#     # when the callback function is invoked we know that the message has been
-#     # received and it is safe to disconnect
-#     emit('my_response',
-#          {'data': 'Disconnected!'},
-#          callback=can_disconnect)
+@socketio.on('disconnect')
+def socket_disconnect() -> None:
+    print('Client disconnected')
 
 
 @socketio.event
-def connect():
+def connect() -> None:
+    """
+        thread for extra task countdown
+    """
     global thread
     with thread_lock:
         if thread is None:
@@ -62,7 +54,11 @@ def connect():
     emit('my_response', {'data': 'Connected'})
 
 
-def countdown():
+def countdown() -> None:
+    """
+        broadcast timer through websocket
+        broadcast result when timer end
+    """
     time = t
     while True:
         while time > 0:
@@ -76,8 +72,5 @@ def countdown():
         time = t
 
 
-#TODO class refactor
-#  thread class override threading
-# try to handle not broadcase format
 if __name__ == '__main__':
     socketio.run(app)
