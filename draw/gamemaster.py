@@ -1,4 +1,3 @@
-from draw import drawer
 from draw.pool import Pool
 from datetime import datetime
 
@@ -21,7 +20,7 @@ class GameMaster:
 
     def notify_winner(self):
         winner_index = self.ticket_pool.get_winner()
-        return winner_index
+        return [self.ticket_pool.price, winner_index]
 
     def restart(self):
         self.ticket_pool.reset()

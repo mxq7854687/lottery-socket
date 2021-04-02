@@ -55,16 +55,21 @@ class TestPool(unittest.TestCase):
         self.assertTrue(full_ticket, -1)
 
     def test_pool_reset(self):
-        ticket = self.pool.draw(0)
-        self.assertEqual(len(self.pool.pool), 1)
+        maximum = self.drawer.max
+        ticket = [-1]
+        for i in range(maximum):
+            ticket = self.pool.draw(i)
+        self.assertEqual(len(self.pool.pool),maximum)
         self.pool.reset()
         self.assertEqual(len(self.pool.pool), 0)
+        self.assertEqual(self.pool.winner, -1)
 
     def test_winner_exist(self):
         maximum = self.drawer.max
         for i in range(maximum):
             ticket = self.pool.draw(user_id=i + 1)
         self.assertTrue(self.pool.winner != -1)
+
 
 
 class TestLotterySocketIO(unittest.TestCase):

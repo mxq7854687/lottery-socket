@@ -39,3 +39,4 @@ class Pool:
     def reset(self):
         self.pool = []
         self.price = self.drawer.draw()
+        self.winner = -1
