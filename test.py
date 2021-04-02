@@ -1,13 +1,73 @@
 import unittest
 import coverage
-from flask import Flask
-from flask_socketio import SocketIO, send
+
+from draw.drawer import Drawer
+from draw.pool import Pool
+from draw.gamemaster import GameMaster
 
 cov = coverage.coverage(branch=True)
 cov.start()
-from server import socketio , app
+from server import socketio, app
 
-class TestSocketIO(unittest.TestCase):
+
+class TestDraw(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        pass
+
+    @classmethod
+    def tearDownClass(cls):
+        # cov.stop()
+        # cov.report(include='flask_socketio/*', show_missing=True)
+        pass
+
+    def setUp(self):
+        self.drawer = Drawer(lower=1, upper=5, num_of_ticket=3)
+
+    def tearDown(self):
+        pass
+
+    def test_draw(self):
+        ticket = self.drawer.draw()
+        self.assertTrue(len(ticket), self.drawer.num_of_ticket)
+        for number in ticket:
+            self.assertTrue(self.drawer.upper > number >= self.drawer.lower)
+
+    def test_max(self):
+        self.assertTrue(self.drawer.max, 24)
+
+
+class TestPool(unittest.TestCase):
+    def setUp(self):
+        self.pool = Pool()
+        self.drawer = Drawer(lower=1, upper=5, num_of_ticket=3)
+
+    def tearDown(self):
+        pass
+
+    def test_pool_full(self):
+        maximum = self.drawer.max
+        ticket = [-1]
+        for i in range(maximum):
+            ticket = self.pool.draw(i)
+        self.assertTrue(ticket != [-1])
+        full_ticket = self.pool.draw(maximum)
+        self.assertTrue(full_ticket, -1)
+
+    def test_pool_reset(self):
+        ticket = self.pool.draw(0)
+        self.assertEqual(len(self.pool.pool), 1)
+        self.pool.reset()
+        self.assertEqual(len(self.pool.pool), 0)
+
+    def test_winner_exist(self):
+        maximum = self.drawer.max
+        for i in range(maximum):
+            ticket = self.pool.draw(user_id=i + 1)
+        self.assertTrue(self.pool.winner != -1)
+
+
+class TestLotterySocketIO(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         pass
@@ -46,9 +106,9 @@ class TestSocketIO(unittest.TestCase):
         print(received)
         self.assertEqual(len(received), 2)
         self.assertEqual(received[0]['name'], 'my_response')
-        self.assertEqual(received[1]['args'][0]['data'],)
-
-
+        data = received[1]['args'][0]['data']
+        self.assertEqual(len(data[0]), 3)
+        self.assertTrue(isinstance(data[1], int))
 
     def test_connect_query_string_and_headers(self):
         client = socketio.test_client(

@@ -1,22 +1,22 @@
 import random
 from itertools import combinations
 
-# class Drawer:
-#
-#     def __init__(self):
-#         self.lower = 1
-#         self.upper = 49
-#         self.num_of_ticket = 7
-#
-#     def draw(self):
-#         return random.sample(range(self.lower, self.upper), self.num_of_ticket)
-#
+class Drawer:
 
-# 49P7,  49C7 ,[[permutation],[permutation]]
-# 49C7 + 7!
+    def __init__(self,lower,upper,num_of_ticket):
+        self.lower = lower
+        self.upper = upper
+        self.num_of_ticket = num_of_ticket
+        self.max = self.get_max()
 
-#TODO use generator
-def draw():
-    return random.sample(range(1,50),7)
+    def get_max(self):
+        res = 1
+        for i in range(self.upper - self.num_of_ticket,self.upper):
+            res *= i
+        return res
+
+    def draw(self):
+        return random.sample(range(self.lower, self.upper), self.num_of_ticket)
+
 
 
