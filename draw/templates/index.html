@@ -1,0 +1,82 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Document</title>
+    </head>
+    <body>
+        <div style="height: 40px">
+            <button
+                style="display: inline-block; margin-right: 10px"
+                id="btnSubmit"
+                onclick="buyTicket()"
+            >
+                Buy Ticket
+            </button>
+            <p style="display: inline-block" id="counter"></p>
+        </div>
+        <div id="log"></div>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"
+            integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ=="
+            crossorigin="anonymous"
+        ></script>
+        <script type="text/javascript" charset="utf-8">
+            var connected = true;
+            var socket = io();
+            function buyTicket() {
+                if (connected) {
+                    socket.emit("buy_ticket", socket.id);
+                }
+            }
+            socket.on("connect", function () {
+                socket.emit("my_event", { data: "I'm connected!" });
+                connected = true;
+            });
+            socket.on("disconnect", function (reason) {
+                connected = false;
+            });
+
+            socket.on("server_response", function (msg) {
+                let message;
+                if (msg.data[0] == -1) {
+                    message = "<br>Received# All ticket sold";
+                } else {
+                    message =
+                        "<br>Received# ticket: [" +
+                        msg.data[0] +
+                        "] | user id : " +
+                        msg.data[1];
+                }
+
+                var log = document.getElementById("log");
+                log.innerHTML = message + log.innerHTML;
+            });
+            socket.on("notification", function (msg) {
+                let message;
+                if (msg.data[1] === "-") {
+                    message =
+                        "<br>Received# ticket: [" +
+                        msg.data[0] +
+                        "] | No winner";
+                } else {
+                    message =
+                        "<br>Received# ticket: [" +
+                        msg.data[0] +
+                        "] | Winner is : " +
+                        msg.data[1] +
+                        " congratulations!";
+                }
+
+                var log = document.getElementById("log");
+                log.innerHTML = message + log.innerHTML;
+            });
+
+            socket.on("counter", function (msg) {
+                document.getElementById("counter").innerHTML =
+                    msg.data + " seconds";
+            });
+        </script>
+    </body>
+</html>
