@@ -7,7 +7,6 @@ from server import app, socketio
 
 
 class TestDraw(unittest.TestCase):
-
     def setUp(self):
         self.drawer = Drawer(lower=1, upper=5, num_of_ticket=3)
 
@@ -70,7 +69,6 @@ class TestPool(unittest.TestCase):
 
 
 class TestLotterySocketIO(unittest.TestCase):
-
     def setUp(self):
         self.drawer = Drawer(lower=1, upper=5, num_of_ticket=3)
 
@@ -85,7 +83,7 @@ class TestLotterySocketIO(unittest.TestCase):
         self.assertNotEqual(client.eio_sid, client2.eio_sid)
         received = client.get_received()
         self.assertEqual(len(received), 1)
-        self.assertEqual(received[0]['args'], [{'data': 'Connected'}])
+        self.assertEqual(received[0]["args"], [{"data": "Connected"}])
         client.disconnect()
         self.assertFalse(client.is_connected())
         self.assertTrue(client2.is_connected())
@@ -94,11 +92,11 @@ class TestLotterySocketIO(unittest.TestCase):
 
     def test_buy_ticket(self):
         client = socketio.test_client(app)
-        client.emit('buy_ticket', client.eio_sid)
+        client.emit("buy_ticket", client.eio_sid)
         received = client.get_received()
         response = [resp for resp in received if resp["name"] == "server_response"]
-        self.assertEqual(response[0]['name'], 'server_response')
-        data = response[0]['args'][0]['data']
+        self.assertEqual(response[0]["name"], "server_response")
+        data = response[0]["args"][0]["data"]
         self.assertEqual(len(data[0]), 3)
         self.assertTrue(isinstance(data[1], str))
         self.assertTrue(len(data[1]) > 1)
@@ -107,26 +105,26 @@ class TestLotterySocketIO(unittest.TestCase):
         client = socketio.test_client(app)
         maximum = self.drawer.max
         for i in range(maximum):
-            client.emit('buy_ticket', client.eio_sid)
-        client.emit('buy_ticket', client.eio_sid)
+            client.emit("buy_ticket", client.eio_sid)
+        client.emit("buy_ticket", client.eio_sid)
         received = client.get_received()
-        self.assertEqual(received[-1]['args'][0]['data'][0], [-1])
+        self.assertEqual(received[-1]["args"][0]["data"][0], [-1])
 
     def test_thread_buyer(self):
         client = socketio.test_client(app)
         client2 = socketio.test_client(app)
         maximum = self.drawer.max
         for i in range(maximum - 1):
-            client.emit('buy_ticket', client.eio_sid)
+            client.emit("buy_ticket", client.eio_sid)
 
-        p1 = Thread(target=client.emit, args=('buy_ticket', client.eio_sid))
-        p2 = Thread(target=client2.emit, args=('buy_ticket', client2.eio_sid))
+        p1 = Thread(target=client.emit, args=("buy_ticket", client.eio_sid))
+        p2 = Thread(target=client2.emit, args=("buy_ticket", client2.eio_sid))
         p1.start()
         p2.start()
 
         received = client2.get_received()
-        self.assertEqual(received[-1]['args'][0]['data'][0], [-1])
+        self.assertEqual(received[-1]["args"][0]["data"][0], [-1])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

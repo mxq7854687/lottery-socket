@@ -1,9 +1,10 @@
-from draw.drawer import Drawer
 from typing import List
+
+from draw.drawer import Drawer
 
 
 class Pool:
-    def __init__(self):
+    def __init__(self) -> None:
         """
         drawer: declare list of numbers in the game
         pool: store tickets
@@ -11,7 +12,7 @@ class Pool:
         winner: client socket id , default is "-"
         """
         self.drawer = Drawer(lower=1, upper=5, num_of_ticket=3)
-        self.pool = []
+        self.pool: List[List[int]] = []
         self.price = self.drawer.draw()
         self.winner = "-"
 
@@ -49,6 +50,6 @@ class Pool:
 
     def reset(self) -> None:
         """
-            reset all attribute in init function
+        Reset all attribute in init function
         """
         self.__init__()
