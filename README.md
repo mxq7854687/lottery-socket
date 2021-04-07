@@ -1,3 +1,7 @@
+### Description
+Player can draw their lucky number.
+Every game will reset in x seconds.
+
 ### Project Setup
 setup venv (if needed) 
 ```
